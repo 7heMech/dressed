@@ -1,6 +1,5 @@
 import { Buffer } from "node:buffer";
 import { type RESTError, type RESTErrorData, RouteBases } from "discord-api-types/v10";
-import { filetypeinfo } from "magic-bytes.js";
 import type { CallConfig } from "../types/config.ts";
 import type { RawFile } from "../types/file.ts";
 import { botEnv, config } from "./env.ts";
@@ -9,6 +8,15 @@ import { checkLimit } from "./ratelimit.ts";
 
 function isBufferLike(value: unknown): value is Buffer | Uint8Array {
   return value instanceof ArrayBuffer || value instanceof Uint8Array || value instanceof Uint8ClampedArray;
+}
+
+async function getFileTypeInfo(data: Uint8Array): Promise<string> {
+  try {
+    const { filetypeinfo } = await import("magic-bytes.js");
+    return filetypeinfo(data)[0]?.mime ?? "application/octet-stream";
+  } catch {
+    return "application/octet-stream";
+  }
 }
 
 function processFiles(files: RawFile[], body: BodyInit) {
@@ -23,14 +31,18 @@ function processFiles(files: RawFile[], body: BodyInit) {
     formData.append("payload_json", JSON.stringify(body));
   }
 
+  // We can't make this function async because it's used synchronously in callDiscord,
+  // but the MIME type detection needs to be async for the dynamic import.
+  // Instead, we process file MIME types eagerly using a simpler approach.
   for (const [index, file] of files.entries()) {
     const key = file.key ?? `files[${index}]`;
     if (isBufferLike(file.data)) {
-      const type = filetypeinfo(file.data)[0]?.mime ?? "application/octet-stream";
+      // Try a simple signature-based detection for common types, fall back to octet-stream
+      const mime = file.contentType ?? guessMimeType(file.data as Uint8Array) ?? "application/octet-stream";
       formData.append(
         key,
         new Blob([Buffer.from(file.data)], {
-          type: file.contentType ?? { "image/apng": "image/png" }[type] ?? type,
+          type: { "image/apng": "image/png" }[mime] ?? mime,
         }),
         file.name,
       );
@@ -39,6 +51,30 @@ function processFiles(files: RawFile[], body: BodyInit) {
     }
   }
   return formData;
+}
+
+/** Simple signature-based MIME type detection without external dependencies */
+function guessMimeType(data: Uint8Array): string | undefined {
+  if (data.length < 4) return undefined;
+  const header = data.buffer instanceof ArrayBuffer ? new Uint8Array(data.buffer, data.byteOffset, Math.min(data.byteLength, 16))
+    : data.slice(0, 16);
+
+  // PNG
+  if (header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4e && header[3] === 0x47) return "image/png";
+  // JPEG
+  if (header[0] === 0xff && header[1] === 0xd8) return "image/jpeg";
+  // GIF
+  if (header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46) return "image/gif";
+  // WebP
+  if (header[0] === 0x52 && header[1] === 0x49 && header[2] === 0x46 && header[8] === 0x57 && header[9] === 0x45 && header[10] === 0x42 && header[11] === 0x50) return "image/webp";
+  // SVG (text-based)
+  if (header[0] === 0x3c && header[1] === 0x73 && header[2] === 0x76 && header[3] === 0x67) return "image/svg+xml";
+  // MP4
+  if (header[4] === 0x66 && header[5] === 0x74 && header[6] === 0x79 && header[7] === 0x70) return "video/mp4";
+  // PDF
+  if (header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46) return "application/pdf";
+
+  return undefined;
 }
 
 export async function callDiscord(

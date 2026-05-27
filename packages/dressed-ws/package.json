@@ -34,5 +34,6 @@
   "types": "./dist/index.d.ts",
   "dependencies": {
     "discord-api-types": "^0.38.38"
-  }
+  },
+  "sideEffects": false
 }

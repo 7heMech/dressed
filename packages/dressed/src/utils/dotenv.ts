@@ -38,7 +38,7 @@ function processEnv(loadedEnvFiles: LoadedEnvFiles) {
 }
 
 export function loadEnvConfig() {
-  if (process.env.__PROCESSED_ENV) return;
+  if (process.env.__PROCESSED_ENV || process.env.DRESSED_NO_DOTENV) return;
   const isTest = process.env.NODE_ENV === "test";
   const isDev = process.env.NODE_ENV === "development";
   const mode = isTest ? "test" : isDev ? "development" : "production"; // NOSONAR

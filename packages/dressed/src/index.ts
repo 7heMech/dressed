@@ -16,7 +16,6 @@ export * from "./components/text-display.ts";
 export * from "./components/text-input.ts";
 export * from "./components/thumbnail.ts";
 // API interactions
-export * from "./resources/generated.resources.ts";
 export * from "./resources/interactions.ts";
 // Types
 export type { CommandConfig } from "./types/config.ts";

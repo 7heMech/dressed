@@ -11,16 +11,26 @@
   "dependencies": {
     "@dressed/matcher": "^1.4.0",
     "discord-api-types": "^0.38.38",
-    "dotenv": "^17.3.1",
     "magic-bytes.js": "^1.12.1"
+  },
+  "peerDependencies": {
+    "discord-api-types": "^0.37.0"
+  },
+  "peerDependenciesMeta": {
+    "discord-api-types": {
+      "optional": true
+    }
   },
   "exports": {
     ".": "./dist/index.js",
     "./server": "./dist/server/index.js",
-    "./utils": "./dist/utils/index.js"
+    "./utils": "./dist/utils/index.js",
+    "./handler": "./dist/handler/index.js",
+    "./resources": "./dist/resources/index.js"
   },
   "type": "module",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
