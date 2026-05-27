@@ -30,7 +30,6 @@ export async function handleRequest(
   hooks: Parameters<typeof handleInteraction>[3] & Parameters<typeof handleEvent>[2] = dressedConfig.hooks ?? {},
 ): Promise<Response> {
   const body = await req.text();
-  const body = await req.text();
   const signature = req.headers.get("x-signature-ed25519");
   const timestamp = req.headers.get("x-signature-timestamp");
 
