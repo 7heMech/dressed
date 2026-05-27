@@ -1,3 +1,5 @@
+import { loadEnvConfig } from "../utils/dotenv.ts";
+
 import { createServer as createHttpServer, type Server } from "node:http";
 import type { CommandData, ComponentData, EventData, ServerConfig } from "../types/config.ts";
 import type { CommandRunner, ComponentRunner, EventRunner } from "../types/handlers.ts";
@@ -5,6 +7,8 @@ import { config as dressedConfig } from "../utils/env.ts";
 import logger from "../utils/log.ts";
 import { handleRequest } from "./handler.ts";
 import { verifySignature } from "./signature.ts";
+
+loadEnvConfig();
 
 /**
  * Starts a server to handle interactions.

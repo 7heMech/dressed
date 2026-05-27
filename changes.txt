@@ -1,0 +1,684 @@
+diff --git a/bun.lock b/bun.lock
+index 41d9439..1710ddc 100644
+--- a/bun.lock
++++ b/bun.lock
+@@ -27,10 +27,15 @@
+       "version": "2.0.0-rc.2.1",
+       "dependencies": {
+         "@dressed/matcher": "^1.4.0",
+-        "discord-api-types": "^0.38.38",
+-        "dotenv": "^17.3.1",
+-        "magic-bytes.js": "^1.12.1",
+       },
++      "peerDependencies": {
++        "discord-api-types": "^0.37.0",
++        "dotenv": "^17.0.0",
++      },
++      "optionalPeers": [
++        "discord-api-types",
++        "dotenv",
++      ],
+     },
+     "packages/dressed-framework": {
+       "name": "@dressed/framework",
+@@ -58,23 +63,27 @@
+       "dependencies": {
+         "@types/react": "^19.2.14",
+         "@types/react-reconciler": "^0.33.0",
+-        "discord-api-types": "^0.38.39",
+         "react-reconciler": "npm:@dressed/react-reconciler",
+       },
+       "peerDependencies": {
++        "discord-api-types": "^0.37.0",
+         "dressed": "^2.0.0-canary.2",
+         "react": "^19.2.4",
+       },
++      "optionalPeers": [
++        "discord-api-types",
++      ],
+     },
+     "packages/dressed-ws": {
+       "name": "@dressed/ws",
+       "version": "0.4.6",
+-      "dependencies": {
+-        "discord-api-types": "^0.38.38",
+-      },
+       "peerDependencies": {
++        "discord-api-types": "^0.37.0",
+         "dressed": "^2.0.0-canary.1",
+       },
++      "optionalPeers": [
++        "discord-api-types",
++      ],
+     },
+     "www": {
+       "name": "dressed-site",
+@@ -476,8 +485,6 @@
+ 
+     "devlop": ["devlop@1.1.0", "", { "dependencies": { "dequal": "^2.0.0" } }, "sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA=="],
+ 
+-    "discord-api-types": ["discord-api-types@0.38.39", "", {}, "sha512-XRdDQvZvID1XvcFftjSmd4dcmMi/RL/jSy5sduBDAvCGFcNFHThdIQXCEBDZFe52lCNEzuIL0QJoKYAmRmxLUA=="],
+-
+     "dotenv": ["dotenv@17.3.1", "", {}, "sha512-IO8C/dzEb6O3F9/twg6ZLXz164a2fhTnEWb95H23Dm4OuN+92NmEAlTrupP9VW6Jm3sO26tQlqyvyi4CsnY9GA=="],
+ 
+     "dressed": ["dressed@workspace:packages/dressed"],
+@@ -592,8 +599,6 @@
+ 
+     "lowlight": ["lowlight@3.3.0", "", { "dependencies": { "@types/hast": "^3.0.0", "devlop": "^1.0.0", "highlight.js": "~11.11.0" } }, "sha512-0JNhgFoPvP6U6lE/UdVsSq99tn6DhjjpAj5MxG49ewd2mOBVtwWYIT8ClyABhq198aXXODMU6Ox8DrGy/CpTZQ=="],
+ 
+-    "magic-bytes.js": ["magic-bytes.js@1.13.0", "", {}, "sha512-afO2mnxW7GDTXMm5/AoN1WuOcdoKhtgXjIvHmobqTD1grNplhGdv3PFOyjCVmrnOZBIT/gD/koDKpYG+0mvHcg=="],
+-
+     "magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
+ 
+     "markdown-table": ["markdown-table@3.0.4", "", {}, "sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw=="],
+diff --git a/packages/dressed-react/package.json b/packages/dressed-react/package.json
+index 780f660..35bd8ad 100644
+--- a/packages/dressed-react/package.json
++++ b/packages/dressed-react/package.json
+@@ -9,13 +9,18 @@
+   "dependencies": {
+     "@types/react": "^19.2.14",
+     "@types/react-reconciler": "^0.33.0",
+-    "discord-api-types": "^0.38.39",
+     "react-reconciler": "npm:@dressed/react-reconciler"
+   },
+   "peerDependencies": {
+     "dressed": "^2.0.0-canary.2",
++    "discord-api-types": "^0.37.0",
+     "react": "^19.2.4"
+   },
++  "peerDependenciesMeta": {
++    "discord-api-types": {
++      "optional": true
++    }
++  },
+   "exports": {
+     ".": "./dist/index.js",
+     "./callbacks": "./dist/rendering/callbacks.js"
+@@ -38,5 +43,6 @@
+     "dry-publish": "bun publish --dry-run"
+   },
+   "type": "module",
++  "sideEffects": false,
+   "types": "./dist/index.d.ts"
+-}
++}
+\ No newline at end of file
+diff --git a/packages/dressed-ws/package.json b/packages/dressed-ws/package.json
+index f1022b2..fbcbe59 100644
+--- a/packages/dressed-ws/package.json
++++ b/packages/dressed-ws/package.json
+@@ -7,7 +7,13 @@
+     "directory": "packages/dressed-ws"
+   },
+   "peerDependencies": {
+-    "dressed": "^2.0.0-canary.1"
++    "dressed": "^2.0.0-canary.1",
++    "discord-api-types": "^0.37.0"
++  },
++  "peerDependenciesMeta": {
++    "discord-api-types": {
++      "optional": true
++    }
+   },
+   "exports": {
+     ".": "./dist/index.js",
+@@ -32,7 +38,5 @@
+   },
+   "type": "module",
+   "types": "./dist/index.d.ts",
+-  "dependencies": {
+-    "discord-api-types": "^0.38.38"
+-  }
+-}
++  "sideEffects": false
++}
+\ No newline at end of file
+diff --git a/packages/dressed/jsr.json b/packages/dressed/jsr.json
+index b2e1cc3..e22226b 100644
+--- a/packages/dressed/jsr.json
++++ b/packages/dressed/jsr.json
+@@ -5,10 +5,20 @@
+   "exports": {
+     ".": "./src/index.ts",
+     "./server": "./src/server/index.ts",
+-    "./utils": "./src/utils/index.ts"
++    "./utils": "./src/utils/index.ts",
++    "./handler": "./src/handler/index.ts"
+   },
+   "publish": {
+-    "include": ["README.md", "src"],
+-    "exclude": ["dist", "!src/resources/generated.resources.ts", "src/resources/make", "**/*.test.ts"]
+-  }
++    "include": [
++      "README.md",
++      "src"
++    ],
++    "exclude": [
++      "dist",
++      "!src/resources/generated.resources.ts",
++      "src/resources/make",
++      "**/*.test.ts"
++    ]
++  },
++  "sideEffects": false
+ }
+diff --git a/packages/dressed/package.json b/packages/dressed/package.json
+index 3d9e078..335817b 100644
+--- a/packages/dressed/package.json
++++ b/packages/dressed/package.json
+@@ -9,18 +9,29 @@
+     "dry-publish": "bun publish --dry-run && bunx --bun jsr publish --dry-run --allow-dirty"
+   },
+   "dependencies": {
+-    "@dressed/matcher": "^1.4.0",
+-    "discord-api-types": "^0.38.38",
+-    "dotenv": "^17.3.1",
+-    "magic-bytes.js": "^1.12.1"
++    "@dressed/matcher": "^1.4.0"
++  },
++  "peerDependencies": {
++    "discord-api-types": "^0.37.0",
++    "dotenv": "^17.0.0"
++  },
++  "peerDependenciesMeta": {
++    "discord-api-types": {
++      "optional": true
++    },
++    "dotenv": {
++      "optional": true
++    }
+   },
+   "exports": {
+     ".": "./dist/index.js",
+     "./server": "./dist/server/index.js",
+-    "./utils": "./dist/utils/index.js"
++    "./utils": "./dist/utils/index.js",
++    "./handler": "./dist/handler/index.js"
+   },
+   "type": "module",
+   "types": "./dist/index.d.ts",
++  "sideEffects": false,
+   "files": [
+     "dist"
+   ],
+diff --git a/packages/dressed/src/handler/index.ts b/packages/dressed/src/handler/index.ts
+new file mode 100644
+index 0000000..0efa16a
+--- /dev/null
++++ b/packages/dressed/src/handler/index.ts
+@@ -0,0 +1,31 @@
++/**
++ * Serverless-friendly handler utilities.
++ * Import from `dressed/handler` for edge runtimes (Cloudflare Workers, Vercel Edge, Deno Deploy).
++ * This entry point avoids pulling in `node:http` and `dotenv`.
++ * @module
++ */
++
++// Types
++export type {
++  BaseData,
++  CommandData,
++  ComponentData,
++  EventData,
++  ServerConfig,
++} from "../types/config.ts";
++export type {
++  CommandHandler,
++  ComponentHandler,
++  EventHandler,
++  CommandRunner,
++  ComponentRunner,
++  EventRunner,
++} from "../types/handlers.ts";
++
++// Handler functions (no node:http dependency)
++export { handleInteraction, handleEvent, handleRequest } from "../server/handler.ts";
++export { verifySignature } from "../server/signature.ts";
++export { createInteraction } from "../server/extenders/interaction.ts";
++export { setupCommands, registerCommands } from "../server/handlers/commands.ts";
++export { setupComponents } from "../server/handlers/components.ts";
++export { setupEvents } from "../server/handlers/events.ts";
+\ No newline at end of file
+diff --git a/packages/dressed/src/server/handler.ts b/packages/dressed/src/server/handler.ts
+new file mode 100644
+index 0000000..b177e46
+--- /dev/null
++++ b/packages/dressed/src/server/handler.ts
+@@ -0,0 +1,124 @@
++import {
++  type APIInteraction,
++  type APIWebhookEvent,
++  ApplicationWebhookType,
++  InteractionType,
++} from "discord-api-types/v10";
++import type { CommandData, ComponentData, DressedConfig, EventData, ServerConfig } from "../types/config.ts";
++import type { CommandRunner, ComponentRunner, EventRunner } from "../types/handlers.ts";
++import { config as dressedConfig } from "../utils/env.ts";
++import logger from "../utils/log.ts";
++import { createInteraction } from "./extenders/interaction.ts";
++import { setupCommands } from "./handlers/commands.ts";
++import { setupComponents } from "./handlers/components.ts";
++import { setupEvents } from "./handlers/events.ts";
++import { verifySignature } from "./signature.ts";
++
++/**
++ * Handles a request from Discord.
++ * @param req The incoming request
++ * @param commands A list of commands or the function to run a command
++ * @param components A list of components or the function to run a component
++ * @param events A list of events or the function to run an event
++ * @returns The response to send back
++ */
++export async function handleRequest(
++  req: Request,
++  commands: CommandRunner | CommandData[],
++  components: ComponentRunner | ComponentData[],
++  events: EventRunner | EventData[],
++  hooks: Parameters<typeof handleInteraction>[3] & Parameters<typeof handleEvent>[2] = dressedConfig.hooks ?? {},
++): Promise<Response> {
++  const body = await req.text();
++  const verified = await verifySignature(
++    body,
++    req.headers.get("x-signature-ed25519") as string,
++    req.headers.get("x-signature-timestamp") as string,
++  );
++
++  if (!verified) {
++    logger.error(new Error("Invalid signature"));
++    return new Response(null, { status: 401 });
++  }
++
++  try {
++    const json = JSON.parse(body);
++    let status: number;
++    // The interaction response token
++    if ("token" in json) {
++      status = await handleInteraction(commands, components, json, hooks);
++    } else {
++      status = await handleEvent(events, json, hooks);
++    }
++    return new Response(status === 200 ? '{"type":1}' : null, { status });
++  } catch (error) {
++    logger.error(new Error("Failed to process request", { cause: error }));
++    return new Response(null, { status: 500 });
++  }
++}
++
++/**
++ * Runs an interaction, takes functions to run commands/components and the interaction body.
++ */
++export async function handleInteraction(
++  commands: CommandRunner | CommandData[],
++  components: ComponentRunner | ComponentData[],
++  interaction: APIInteraction,
++  hooks: Pick<
++    NonNullable<ServerConfig["hooks"]>,
++    "onBeforeCommand" | "onBeforeComponent" | "onUnknownInteraction"
++  > = dressedConfig.hooks ?? {},
++): Promise<200 | 202 | 404> {
++  const unknown = hooks.onUnknownInteraction;
++  switch (interaction.type) {
++    case InteractionType.Ping: {
++      logger.succeed("Received ping test");
++      return 200;
++    }
++    case InteractionType.ApplicationCommand: {
++      const runCommand = typeof commands === "function" ? commands : setupCommands(commands);
++      await runCommand(createInteraction(interaction), { before: hooks.onBeforeCommand as never, unknown });
++      return 202;
++    }
++    case InteractionType.ApplicationCommandAutocomplete: {
++      const runCommand = typeof commands === "function" ? commands : setupCommands(commands);
++      await runCommand(createInteraction(interaction), { unknown }, "autocomplete");
++      return 202;
++    }
++    case InteractionType.MessageComponent:
++    case InteractionType.ModalSubmit: {
++      const runComponent = typeof components === "function" ? components : setupComponents(components);
++      await runComponent(createInteraction(interaction), { before: hooks.onBeforeComponent, unknown });
++      return 202;
++    }
++    default: {
++      logger.error(new Error("Received invalid interaction", { cause: interaction }));
++      return 404;
++    }
++  }
++}
++
++/**
++ * Runs an event, takes a function to run events and the event body.
++ */
++export async function handleEvent(
++  events: EventRunner | EventData[],
++  event: APIWebhookEvent,
++  hooks: Pick<NonNullable<DressedConfig["hooks"]>, "onBeforeEvent" | "onUnknownEvent"> = dressedConfig.hooks ?? {},
++): Promise<200 | 202 | 404> {
++  switch (event.type) {
++    case ApplicationWebhookType.Ping: {
++      logger.succeed("Received ping test");
++      return 200;
++    }
++    case ApplicationWebhookType.Event: {
++      const runEvent = typeof events === "function" ? events : setupEvents(events);
++      await runEvent(event.event, { before: hooks.onBeforeEvent, unknown: hooks.onUnknownEvent });
++      return 202;
++    }
++    default: {
++      logger.error(new Error("Received invalid event", { cause: event }));
++      return 404;
++    }
++  }
++}
+diff --git a/packages/dressed/src/server/index.ts b/packages/dressed/src/server/index.ts
+index 206929b..7333bdd 100644
+--- a/packages/dressed/src/server/index.ts
++++ b/packages/dressed/src/server/index.ts
+@@ -23,6 +23,6 @@ export * from "./extenders/interaction.ts";
+ export * from "./handlers/commands.ts";
+ export * from "./handlers/components.ts";
+ export * from "./handlers/events.ts";
+-export * from "./handlers/index.ts";
++export * from "./handler.ts";
+ export * from "./server.ts";
+-export * from "./signature.ts";
++export * from "./signature.ts";
+\ No newline at end of file
+diff --git a/packages/dressed/src/server/server.ts b/packages/dressed/src/server/server.ts
+index 3915dc3..c3c7522 100644
+--- a/packages/dressed/src/server/server.ts
++++ b/packages/dressed/src/server/server.ts
+@@ -1,18 +1,9 @@
+ import { createServer as createHttpServer, type Server } from "node:http";
+-import {
+-  type APIInteraction,
+-  type APIWebhookEvent,
+-  ApplicationWebhookType,
+-  InteractionType,
+-} from "discord-api-types/v10";
+-import type { CommandData, ComponentData, DressedConfig, EventData, ServerConfig } from "../types/config.ts";
++import type { CommandData, ComponentData, EventData, ServerConfig } from "../types/config.ts";
+ import type { CommandRunner, ComponentRunner, EventRunner } from "../types/handlers.ts";
+ import { config as dressedConfig } from "../utils/env.ts";
+ import logger from "../utils/log.ts";
+-import { createInteraction } from "./extenders/interaction.ts";
+-import { setupCommands } from "./handlers/commands.ts";
+-import { setupComponents } from "./handlers/components.ts";
+-import { setupEvents } from "./handlers/events.ts";
++import { handleRequest } from "./handler.ts";
+ import { verifySignature } from "./signature.ts";
+ 
+ /**
+@@ -62,113 +53,4 @@ export function createServer(
+   process.on("SIGINT", shutdown);
+ 
+   return server;
+-}
+-
+-/**
+- * Handles a request from Discord.
+- * @param req The incoming request
+- * @param commands A list of commands or the function to run a command
+- * @param components A list of components or the function to run a component
+- * @param events A list of events or the function to run an event
+- * @returns The response to send back
+- */
+-export async function handleRequest(
+-  req: Request,
+-  commands: CommandRunner | CommandData[],
+-  components: ComponentRunner | ComponentData[],
+-  events: EventRunner | EventData[],
+-  hooks: Parameters<typeof handleInteraction>[3] & Parameters<typeof handleEvent>[2] = dressedConfig.hooks ?? {},
+-): Promise<Response> {
+-  const body = await req.text();
+-  const verified = await verifySignature(
+-    body,
+-    req.headers.get("x-signature-ed25519") as string,
+-    req.headers.get("x-signature-timestamp") as string,
+-  );
+-
+-  if (!verified) {
+-    logger.error(new Error("Invalid signature"));
+-    return new Response(null, { status: 401 });
+-  }
+-
+-  try {
+-    const json = JSON.parse(body);
+-    let status: number;
+-    // The interaction response token
+-    if ("token" in json) {
+-      status = await handleInteraction(commands, components, json, hooks);
+-    } else {
+-      status = await handleEvent(events, json, hooks);
+-    }
+-    return new Response(status === 200 ? '{"type":1}' : null, { status });
+-  } catch (error) {
+-    logger.error(new Error("Failed to process request", { cause: error }));
+-    return new Response(null, { status: 500 });
+-  }
+-}
+-
+-/**
+- * Runs an interaction, takes functions to run commands/components and the interaction body.
+- */
+-export async function handleInteraction(
+-  commands: CommandRunner | CommandData[],
+-  components: ComponentRunner | ComponentData[],
+-  interaction: APIInteraction,
+-  hooks: Pick<
+-    NonNullable<ServerConfig["hooks"]>,
+-    "onBeforeCommand" | "onBeforeComponent" | "onUnknownInteraction"
+-  > = dressedConfig.hooks ?? {},
+-): Promise<200 | 202 | 404> {
+-  const unknown = hooks.onUnknownInteraction;
+-  switch (interaction.type) {
+-    case InteractionType.Ping: {
+-      logger.succeed("Received ping test");
+-      return 200;
+-    }
+-    case InteractionType.ApplicationCommand: {
+-      const runCommand = typeof commands === "function" ? commands : setupCommands(commands);
+-      await runCommand(createInteraction(interaction), { before: hooks.onBeforeCommand as never, unknown });
+-      return 202;
+-    }
+-    case InteractionType.ApplicationCommandAutocomplete: {
+-      const runCommand = typeof commands === "function" ? commands : setupCommands(commands);
+-      await runCommand(createInteraction(interaction), { unknown }, "autocomplete");
+-      return 202;
+-    }
+-    case InteractionType.MessageComponent:
+-    case InteractionType.ModalSubmit: {
+-      const runComponent = typeof components === "function" ? components : setupComponents(components);
+-      await runComponent(createInteraction(interaction), { before: hooks.onBeforeComponent, unknown });
+-      return 202;
+-    }
+-    default: {
+-      logger.error(new Error("Received invalid interaction", { cause: interaction }));
+-      return 404;
+-    }
+-  }
+-}
+-
+-/**
+- * Runs an event, takes a function to run events and the event body.
+- */
+-export async function handleEvent(
+-  events: EventRunner | EventData[],
+-  event: APIWebhookEvent,
+-  hooks: Pick<NonNullable<DressedConfig["hooks"]>, "onBeforeEvent" | "onUnknownEvent"> = dressedConfig.hooks ?? {},
+-): Promise<200 | 202 | 404> {
+-  switch (event.type) {
+-    case ApplicationWebhookType.Ping: {
+-      logger.succeed("Received ping test");
+-      return 200;
+-    }
+-    case ApplicationWebhookType.Event: {
+-      const runEvent = typeof events === "function" ? events : setupEvents(events);
+-      await runEvent(event.event, { before: hooks.onBeforeEvent, unknown: hooks.onUnknownEvent });
+-      return 202;
+-    }
+-    default: {
+-      logger.error(new Error("Received invalid event", { cause: event }));
+-      return 404;
+-    }
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/packages/dressed/src/types/config.ts b/packages/dressed/src/types/config.ts
+index 6de560d..c7a9ddb 100644
+--- a/packages/dressed/src/types/config.ts
++++ b/packages/dressed/src/types/config.ts
+@@ -9,7 +9,7 @@ import type {
+   RESTPostAPIPrimaryEntryPointApplicationCommandJSONBody,
+   Snowflake,
+ } from "discord-api-types/v10";
+-import { createServer } from "../server/server.ts";
++import type { createServer } from "../server/server.ts";
+ import type { botEnv } from "../utils/env.ts";
+ import type { CommandHandler, ComponentHandler, EventHandler } from "./handlers.ts";
+ import type { Interaction } from "./interaction.ts";
+diff --git a/packages/dressed/src/utils/call-discord.ts b/packages/dressed/src/utils/call-discord.ts
+index 386aeee..c6b80fb 100644
+--- a/packages/dressed/src/utils/call-discord.ts
++++ b/packages/dressed/src/utils/call-discord.ts
+@@ -1,6 +1,5 @@
+ import { Buffer } from "node:buffer";
+ import { type RESTError, type RESTErrorData, RouteBases } from "discord-api-types/v10";
+-import { filetypeinfo } from "magic-bytes.js";
+ import type { CallConfig } from "../types/config.ts";
+ import type { RawFile } from "../types/file.ts";
+ import { botEnv, config } from "./env.ts";
+@@ -10,7 +9,6 @@ import { checkLimit } from "./ratelimit.ts";
+ function isBufferLike(value: unknown): value is Buffer | Uint8Array {
+   return value instanceof ArrayBuffer || value instanceof Uint8Array || value instanceof Uint8ClampedArray;
+ }
+-
+ function processFiles(files: RawFile[], body: BodyInit) {
+   if (typeof body === "object" && body !== null) {
+     if ("files" in body) delete body.files;
+@@ -26,11 +24,12 @@ function processFiles(files: RawFile[], body: BodyInit) {
+   for (const [index, file] of files.entries()) {
+     const key = file.key ?? `files[${index}]`;
+     if (isBufferLike(file.data)) {
+-      const type = filetypeinfo(file.data)[0]?.mime ?? "application/octet-stream";
++      // Detect common MIME types from file signatures
++      const mime = file.contentType ?? guessMimeType(file.data as Uint8Array) ?? "application/octet-stream";
+       formData.append(
+         key,
+         new Blob([Buffer.from(file.data)], {
+-          type: file.contentType ?? { "image/apng": "image/png" }[type] ?? type,
++          type: { "image/apng": "image/png" }[mime] ?? mime,
+         }),
+         file.name,
+       );
+@@ -41,6 +40,30 @@ function processFiles(files: RawFile[], body: BodyInit) {
+   return formData;
+ }
+ 
++/** Simple signature-based MIME type detection without external dependencies */
++function guessMimeType(data: Uint8Array): string | undefined {
++  if (data.length < 4) return undefined;
++  const header = data.buffer instanceof ArrayBuffer ? new Uint8Array(data.buffer, data.byteOffset, Math.min(data.byteLength, 16))
++    : data.slice(0, 16);
++
++  // PNG
++  if (header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4e && header[3] === 0x47) return "image/png";
++  // JPEG
++  if (header[0] === 0xff && header[1] === 0xd8) return "image/jpeg";
++  // GIF
++  if (header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46) return "image/gif";
++  // WebP
++  if (header[0] === 0x52 && header[1] === 0x49 && header[2] === 0x46 && header[8] === 0x57 && header[9] === 0x45 && header[10] === 0x42 && header[11] === 0x50) return "image/webp";
++  // SVG (text-based)
++  if (header[0] === 0x3c && header[1] === 0x73 && header[2] === 0x76 && header[3] === 0x67) return "image/svg+xml";
++  // MP4
++  if (header[4] === 0x66 && header[5] === 0x74 && header[6] === 0x79 && header[7] === 0x70) return "video/mp4";
++  // PDF
++  if (header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46) return "application/pdf";
++
++  return undefined;
++}
++
+ export async function callDiscord(
+   endpoint: string,
+   init: Omit<RequestInit, "body"> & { method: string; params?: unknown; body?: unknown; files?: RawFile[] },
+diff --git a/packages/dressed/src/utils/dotenv.ts b/packages/dressed/src/utils/dotenv.ts
+index e5174e5..b271873 100644
+--- a/packages/dressed/src/utils/dotenv.ts
++++ b/packages/dressed/src/utils/dotenv.ts
+@@ -38,14 +38,25 @@ function processEnv(loadedEnvFiles: LoadedEnvFiles) {
+ }
+ 
+ export function loadEnvConfig() {
+-  if (process.env.__PROCESSED_ENV) return;
++  if (process.env.__PROCESSED_ENV || process.env.DRESSED_NO_DOTENV) return;
++
++  // Guard: node:fs may not be available on serverless platforms (CF Workers, Deno Deploy)
++  try {
++    // Test that node:fs is actually functional — on some platforms the import
++    // succeeds but the functions throw at runtime
++    statSync;
++    readFileSync;
++  } catch {
++    return;
++  }
++
+   const isTest = process.env.NODE_ENV === "test";
+   const isDev = process.env.NODE_ENV === "development";
+   const mode = isTest ? "test" : isDev ? "development" : "production"; // NOSONAR
+   const dotenvFiles = [`.env.${mode}.local`, !isTest && `.env.local`, `.env.${mode}`, ".env"].filter(
+     Boolean,
+   ) as string[];
+-  const files = [];
++  const files: LoadedEnvFiles = [];
+ 
+   for (const envFile of dotenvFiles) {
+     const dotEnvPath = join(".", envFile);
+@@ -58,4 +69,4 @@ export function loadEnvConfig() {
+   }
+ 
+   processEnv(files);
+-}
++}
+\ No newline at end of file
+diff --git a/packages/dressed/src/utils/env.ts b/packages/dressed/src/utils/env.ts
+index 7659d78..de47563 100644
+--- a/packages/dressed/src/utils/env.ts
++++ b/packages/dressed/src/utils/env.ts
+@@ -8,11 +8,11 @@ interface BotEnvs {
+   DISCORD_TOKEN: string;
+ }
+ 
+-loadEnvConfig();
+-
+ /** The global configuration for various Dressed services. */
+ export const config: DressedConfig = {};
+ 
++loadEnvConfig();
++
+ /** The loaded env vars pertaining to bots, overriden by {@link config}. */
+ export const botEnv: BotEnvs = new Proxy({} as BotEnvs, {
+   get(_, key: keyof BotEnvs) {
+diff --git a/packages/dressed/src/utils/index.ts b/packages/dressed/src/utils/index.ts
+index d27219c..bcdd029 100644
+--- a/packages/dressed/src/utils/index.ts
++++ b/packages/dressed/src/utils/index.ts
+@@ -9,4 +9,4 @@ export type { CallConfig, DressedConfig } from "../types/config.ts";
+ // Utils
+ export * from "./call-discord.ts";
+ export * from "./env.ts";
+-export { default as logger } from "./log.ts";
++export { default as logger } from "./log.ts";
+\ No newline at end of file
+diff --git a/packages/dressed/tsconfig.json b/packages/dressed/tsconfig.json
+index 387a9ad..7f903b8 100644
+--- a/packages/dressed/tsconfig.json
++++ b/packages/dressed/tsconfig.json
+@@ -17,4 +17,4 @@
+   },
+   "include": ["src/**/*.ts"],
+   "exclude": ["src/resources/make", "src/**/*.test.ts"]
+-}
++}
+\ No newline at end of file

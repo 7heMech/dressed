@@ -40,12 +40,11 @@ function processEnv(loadedEnvFiles: LoadedEnvFiles) {
 export function loadEnvConfig() {
   if (process.env.__PROCESSED_ENV || process.env.DRESSED_NO_DOTENV) return;
 
-  // Guard: node:fs may not be available on serverless platforms (CF Workers, Deno Deploy)
+  // Actively invoke node:fs functions to catch platforms with stub implementations
+  // that only throw at runtime (reference-only checks bypass these guards)
   try {
-    // Test that node:fs is actually functional — on some platforms the import
-    // succeeds but the functions throw at runtime
-    statSync;
-    readFileSync;
+    statSync(".");
+    readFileSync(new URL(import.meta.url));
   } catch {
     return;
   }
