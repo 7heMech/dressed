@@ -30,11 +30,16 @@ export async function handleRequest(
   hooks: Parameters<typeof handleInteraction>[3] & Parameters<typeof handleEvent>[2] = dressedConfig.hooks ?? {},
 ): Promise<Response> {
   const body = await req.text();
-  const verified = await verifySignature(
-    body,
-    req.headers.get("x-signature-ed25519") as string,
-    req.headers.get("x-signature-timestamp") as string,
-  );
+  const body = await req.text();
+  const signature = req.headers.get("x-signature-ed25519");
+  const timestamp = req.headers.get("x-signature-timestamp");
+
+  if (!signature || !timestamp) {
+    logger.error(new Error("Missing signature headers"));
+    return new Response(null, { status: 401 });
+  }
+
+  const verified = await verifySignature(body, signature, timestamp);
 
   if (!verified) {
     logger.error(new Error("Invalid signature"));

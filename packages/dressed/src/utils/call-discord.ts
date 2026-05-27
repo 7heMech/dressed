@@ -43,21 +43,35 @@ function processFiles(files: RawFile[], body: BodyInit) {
 /** Simple signature-based MIME type detection without external dependencies */
 function guessMimeType(data: Uint8Array): string | undefined {
   if (data.length < 4) return undefined;
-  const header = data.buffer instanceof ArrayBuffer ? new Uint8Array(data.buffer, data.byteOffset, Math.min(data.byteLength, 16))
-    : data.slice(0, 16);
+  const header = data.subarray(0, 16);
 
   // PNG
   if (header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4e && header[3] === 0x47) return "image/png";
+  
   // JPEG
   if (header[0] === 0xff && header[1] === 0xd8) return "image/jpeg";
+  
   // GIF
   if (header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46) return "image/gif";
+  
   // WebP
-  if (header[0] === 0x52 && header[1] === 0x49 && header[2] === 0x46 && header[8] === 0x57 && header[9] === 0x45 && header[10] === 0x42 && header[11] === 0x50) return "image/webp";
-  // SVG (text-based)
-  if (header[0] === 0x3c && header[1] === 0x73 && header[2] === 0x76 && header[3] === 0x67) return "image/svg+xml";
-  // MP4
-  if (header[4] === 0x66 && header[5] === 0x74 && header[6] === 0x79 && header[7] === 0x70) return "video/mp4";
+  if (
+    header.length >= 12 && 
+    header[0] === 0x52 && header[1] === 0x49 && header[2] === 0x46 && header[3] === 0x46 && // RIFF
+    header[8] === 0x57 && header[9] === 0x45 && header[10] === 0x42 && header[11] === 0x50    // WEBP
+  ) {
+    return "image/webp";
+  }
+  
+  // SVG (Catches raw <svg tags and standard <?xml file preambles)
+  if (header[0] === 0x3c) { 
+    if (header[1] === 0x73 && header[2] === 0x76 && header[3] === 0x67) return "image/svg+xml"; // <svg
+    if (header.length >= 5 && header[1] === 0x3f && header[2] === 0x78 && header[3] === 0x6d && header[4] === 0x6c) return "image/svg+xml"; // <?xml
+  }
+  
+  // MP4 (Broad ISO Base Media File check: mov, mp4, heic, avif)
+  if (header.length >= 8 && header[4] === 0x66 && header[5] === 0x74 && header[6] === 0x79 && header[7] === 0x70) return "video/mp4";
+  
   // PDF
   if (header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46) return "application/pdf";
 
