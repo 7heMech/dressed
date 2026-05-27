@@ -9,16 +9,6 @@ import { checkLimit } from "./ratelimit.ts";
 function isBufferLike(value: unknown): value is Buffer | Uint8Array {
   return value instanceof ArrayBuffer || value instanceof Uint8Array || value instanceof Uint8ClampedArray;
 }
-
-async function getFileTypeInfo(data: Uint8Array): Promise<string> {
-  try {
-    const { filetypeinfo } = await import("magic-bytes.js");
-    return filetypeinfo(data)[0]?.mime ?? "application/octet-stream";
-  } catch {
-    return "application/octet-stream";
-  }
-}
-
 function processFiles(files: RawFile[], body: BodyInit) {
   if (typeof body === "object" && body !== null) {
     if ("files" in body) delete body.files;
@@ -31,13 +21,10 @@ function processFiles(files: RawFile[], body: BodyInit) {
     formData.append("payload_json", JSON.stringify(body));
   }
 
-  // We can't make this function async because it's used synchronously in callDiscord,
-  // but the MIME type detection needs to be async for the dynamic import.
-  // Instead, we process file MIME types eagerly using a simpler approach.
   for (const [index, file] of files.entries()) {
     const key = file.key ?? `files[${index}]`;
     if (isBufferLike(file.data)) {
-      // Try a simple signature-based detection for common types, fall back to octet-stream
+      // Detect common MIME types from file signatures
       const mime = file.contentType ?? guessMimeType(file.data as Uint8Array) ?? "application/octet-stream";
       formData.append(
         key,

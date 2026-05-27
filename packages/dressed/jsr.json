@@ -6,8 +6,7 @@
     ".": "./src/index.ts",
     "./server": "./src/server/index.ts",
     "./utils": "./src/utils/index.ts",
-    "./handler": "./src/handler/index.ts",
-    "./resources": "./src/resources/index.ts"
+    "./handler": "./src/handler/index.ts"
   },
   "publish": {
     "include": [

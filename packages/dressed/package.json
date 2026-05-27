@@ -9,8 +9,7 @@
     "dry-publish": "bun publish --dry-run && bunx --bun jsr publish --dry-run --allow-dirty"
   },
   "dependencies": {
-    "@dressed/matcher": "^1.4.0",
-    "magic-bytes.js": "^1.12.1"
+    "@dressed/matcher": "^1.4.0"
   },
   "peerDependencies": {
     "discord-api-types": "^0.37.0",
@@ -28,8 +27,7 @@
     ".": "./dist/index.js",
     "./server": "./dist/server/index.js",
     "./utils": "./dist/utils/index.js",
-    "./handler": "./dist/handler/index.js",
-    "./resources": "./dist/resources/index.js"
+    "./handler": "./dist/handler/index.js"
   },
   "type": "module",
   "types": "./dist/index.d.ts",

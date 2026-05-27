@@ -1,5 +1,6 @@
 import { env } from "node:process";
 import type { DressedConfig } from "../types/config.ts";
+import { loadEnvConfig } from "./dotenv.ts";
 
 interface BotEnvs {
   DISCORD_APP_ID: string;
@@ -9,6 +10,8 @@ interface BotEnvs {
 
 /** The global configuration for various Dressed services. */
 export const config: DressedConfig = {};
+
+loadEnvConfig();
 
 /** The loaded env vars pertaining to bots, overriden by {@link config}. */
 export const botEnv: BotEnvs = new Proxy({} as BotEnvs, {
