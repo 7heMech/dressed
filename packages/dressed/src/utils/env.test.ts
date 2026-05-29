@@ -26,5 +26,9 @@ test("Context storage", async () => {
     expect(botEnv.DISCORD_APP_ID).toBe("context_app_id");
   });
 
+  await asyncLocalStorage.run({ DISCORD_APP_ID: "flat_context_app_id" }, () => {
+    expect(botEnv.DISCORD_APP_ID).toBe("flat_context_app_id");
+  });
+
   expect(tryGetContext()).toBeUndefined();
 });

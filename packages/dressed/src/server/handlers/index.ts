@@ -39,9 +39,13 @@ export function createHandlerSetup<T extends BaseData<unknown>, D, P extends unk
         const handler = item.exports[key as keyof typeof item.exports];
         if (!handler) throw new Error(`Unable to find '${String(key)}' in exports`);
 
-        await asyncLocalStorage.run({ env: {}, var: {} }, async () => {
+        if (asyncLocalStorage.getStore()) {
           await handler(...((await hooks.before?.(...props)) ?? props));
-        });
+        } else {
+          await asyncLocalStorage.run({ env: {}, var: {} }, async () => {
+            await handler(...((await hooks.before?.(...props)) ?? props));
+          });
+        }
       } catch (e) {
         const text = pendingText.replace("Running", "Failed to run");
         if (e instanceof Error) {
