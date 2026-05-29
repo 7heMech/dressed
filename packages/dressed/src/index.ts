@@ -28,3 +28,4 @@ export type {
   MessageComponentInteraction,
   ModalSubmitInteraction,
 } from "./types/interaction.ts";
+export { getContext, tryGetContext, type Env, type Context } from "./utils/env.ts";
